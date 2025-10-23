@@ -2,7 +2,7 @@
 
 **Part 1**
 
-Part 1 of the IRWA porject involves text cleaning, data normalization, and preprocessing of a fashion product dataset, to prepare it for future search.
+This part of the IRWA project involves text cleaning, data normalization, and preprocessing of a fashion product dataset, to prepare it for future search.
 
 **Requirements:** The following python packages are used: nltk
 
