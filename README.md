@@ -4,7 +4,7 @@
 
 This part of the IRWA project involves text cleaning, data normalization, and preprocessing of a fashion product dataset, to prepare it for future search.
 
-**Requirements:** The following python packages are used: nltk
+**Requirements:** The following python packages are used: json, re, nltk
 
 
 In the file IRWA_part1.ipynb, we created multiple functions and code to do the tasks asked:
