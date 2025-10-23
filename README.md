@@ -9,13 +9,15 @@ This part of the IRWA project involves text cleaning, data normalization, and pr
 
 In the file IRWA_part1.ipynb, we created multiple functions and code to do the tasks asked:
 
+
 **Function:** `clean_text(text)`
 
--   Converts text to lowercase\
--   Removes non-ASCII characters and punctuation\
--   Collapses multiple spaces\
--   Removes stopwords (using NLTK English stopwords)\
+-   Converts text to lowercase
+-   Removes non-ASCII characters and punctuation
+-   Collapses multiple spaces
+-   Removes stopwords (using NLTK English stopwords)
 -   Applies stemming (Porter Stemmer)
+
 
 **Function:** `ensure_fields(doc)`
 
@@ -29,6 +31,7 @@ REQUIRED_FIELDS = [
 ]
 ```
 If any are missing, they are filled with `None`.
+
 
 **Function:** `normalize_numeric_fields(doc)`
 
