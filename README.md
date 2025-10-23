@@ -39,6 +39,3 @@ Cleans and converts numeric and rating-related fields into proper data
 types: - Converts `selling_price` and `actual_price` to `float` -
 Extracts integer values from `discount` (e.g., "69% off" → `69`) -
 Converts `average_rating` to `float`
-
-This ensures consistent numeric data for: - Sorting - Range queries -
-Statistical analysis
