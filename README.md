@@ -32,6 +32,11 @@ REQUIRED_FIELDS = [
 ```
 If any are missing, they are filled with `None`.
 
+**Function:** `build_metadata_text(doc)`
+Creates a new field called metadata_text by combining several metadata attributes into a single string. This field is useful for general-purpose indexing and fallback matching when the query is vague or not tied to a specific field.
+
+  -Combines brand, category, sub_category, product_details, and seller
+  -Helps support flexible search and exploratory queries
 
 **Function:** `normalize_numeric_fields(doc)`
 
