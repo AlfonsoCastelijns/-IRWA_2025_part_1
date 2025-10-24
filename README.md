@@ -4,7 +4,7 @@
 
 This part of the IRWA project involves text cleaning, data normalization, and preprocessing of a fashion product dataset, to prepare it for future search.
 
-**Requirements:** The following python packages are used: json, re, nltk
+**Requirements:** The following python packages are used: json, re, nltk, pandas, numpy, matplotlib, seaborn, collections
 
 
 In the file IRWA_part1.ipynb, we created multiple functions and code to do the tasks asked:
@@ -39,3 +39,6 @@ Cleans and converts numeric and rating-related fields into proper data
 types: - Converts `selling_price` and `actual_price` to `float` -
 Extracts integer values from `discount` (e.g., "69% off" → `69`) -
 Converts `average_rating` to `float`
+
+
+For part 2 we don't define any more functions, we use functions that are already created from different libraries, mainly matplotlib and seaborn and the code is executed just by pressing run
