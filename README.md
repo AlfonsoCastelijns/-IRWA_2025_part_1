@@ -54,6 +54,7 @@ For part 2 we don't define any more functions, we use functions that are already
 This second deliverable of the project involves creating an inverted index for our dataset of fashion products, the ranking of results and its evaluation.
 
 **Part 1**
+
 **Requirements:** The following python packages are used: json, re, nltk
 
 In the file IRWA_part2.ipynb, we include the functions created in the previous deliverable: `clean_text()`,`ensure_fields()`,`build_metadata_text()`, and `normalize_numeric_fields()`. We then created the code to generate the inverted index, iterating through the documents' title and description, and using the stemmed words (with stopwords removed) as terms in our index. We define the following functions in succession:
