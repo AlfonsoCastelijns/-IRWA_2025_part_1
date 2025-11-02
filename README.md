@@ -48,3 +48,5 @@ Converts `average_rating` to `float`
 
 
 For part 2 we don't define any more functions, we use functions that are already created from different libraries, mainly matplotlib and seaborn and the code is executed just by pressing run
+
+
