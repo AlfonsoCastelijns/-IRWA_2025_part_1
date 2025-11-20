@@ -177,4 +177,111 @@ Returns:
 
 
 To execute the code for the second deliverable, simply run each cell in file `IRWA_part2.ipynb` in order. 
-****
+
+# -IRWA_2025_part_3
+
+This deliverable is on different methods of ranking.
+To execute the code for the third deliverable, simply run each cell in file `IRWA_part3.ipynb` in order, having the fashion dataset in the same directory.
+
+**Part 1**
+
+**Function:** `build_query_vector(query_terms, idf_scores)`  
+Builds a TF‑IDF weighted query vector from the given query terms.  
+
+Parameters:
+- `query_terms` (`list[str]`): Terms in the query.  
+- `idf_scores` (`dict[str, float]`): IDF values for each term in the corpus.  
+
+Returns:
+- `dict[str, float]`: A dictionary mapping each query term to its TF‑IDF weight.  
+
+**Function:** `cosine_similarity(query_vector, doc_vector, doc_norm)`  
+Computes the cosine similarity between a query vector and a document vector.  
+
+Parameters:
+- `query_vector` (`dict[str, float]`): TF‑IDF weighted query vector.  
+- `doc_vector` (`dict[str, float]`): TF‑IDF weighted document vector.  
+- `doc_norm` (`float`): Precomputed norm of the document vector.  
+
+Returns:
+- `float`: Cosine similarity score between the query and the document.  
+
+**Function:** `get_idf(term)`  
+Computes the inverse document frequency (IDF) for a given term.  
+
+Parameters:
+- `term` (`str`): The term for which to compute IDF.  
+
+Returns:
+- `float`: The IDF value for the term. Returns `0.0` if the term does not appear in any document.  
+
+**Function:** `rank_documents_tfidf_cosine(query_terms, inverted_index, tfidf_scores, idf_scores, doc_norms)`
+Ranks documents using TF‑IDF weights combined with cosine similarity.  
+
+Parameters:
+- `query_terms` (`list[str]`): Terms in the query.  
+- `inverted_index` (`dict[str, set[int]]`): Maps terms to document IDs containing them.  
+- `tfidf_scores` (`dict[int, dict[str, float]]`): TF‑IDF weights per document.  
+- `idf_scores` (`dict[str, float]`): IDF values for each term.  
+- `doc_norms` (`dict[int, float]`): Precomputed vector norms for each document.  
+
+Returns:
+- `list[int]`: Ranked document IDs.  
+- `dict[int, float]`: Cosine similarity scores per document.  
+
+**Function:** `bm25_rank_classic_idf(query_terms, inverted_index, tf_counts, K1=1.2, B=0.75)`
+Ranks documents using the BM25 probabilistic model.  
+
+Parameters:
+- `query_terms` (`list[str]`): Terms in the query.  
+- `inverted_index` (`dict[str, set[int]]`): Maps terms to candidate documents.  
+- `tf_counts` (`dict[int, dict[str, int]]`): Term frequencies per document.  
+- `K1` (`float`): Controls term frequency saturation (default = 1.2).  
+- `B` (`float`): Controls document length normalization (default = 0.75).  
+
+Returns:
+- `list[int]`: Ranked document IDs.  
+- `dict[int, float]`: BM25 scores per document.
+
+**Function**: `custom_score(query_terms, inverted_index, tf_counts, corpus, alpha=0.3, beta=0.2, gamma=0.8, title_weight=1.5, desc_weight=1.0)`
+Ranks documents using a hybrid scoring function tailored for e‑commerce.  
+
+Parameters:
+- `query_terms` (`list[str]`): Terms in the query.  
+- `inverted_index` (`dict[str, set[int]]`): Candidate documents.  
+- `tf_counts` (`dict[int, dict[str, int]]`): Term frequencies.  
+- `corpus` (`list[dict]`): Full product dataset with metadata.  
+- `alpha, beta, gamma` (`float`): Weights for discount, rating, and stock penalty.  
+- `title_weight, desc_weight` (`float`): Weights for textual matches.  
+
+Returns:
+- `list[int]`: Ranked document IDs.  
+- `dict[int, float]`: Custom scores per document.
+
+**Part 2**
+
+**Function:** `text_to_w2v_vector(text, model)`  
+Converts a text string into a Word2Vec vector representation by averaging word embeddings.  
+
+Parameters:
+- `text` (`str`): Input text to be converted into a vector.  
+- `model` (`gensim.models.Word2Vec`): Pre‑trained Word2Vec model containing word embeddings.  
+
+Returns:
+- `numpy.ndarray`: A vector representation of the text. Returns a zero vector if none of the words are in the model vocabulary.  
+
+**Function:** `rank_documents_word2vec(query_terms, inverted_index, doc_vectors, model)`  
+Ranks documents using Word2Vec embeddings and cosine similarity.  
+
+Parameters:
+- `query_terms` (`list[str]`): Terms in the query.  
+- `inverted_index` (`dict[str, set[int]]`): Maps terms to candidate document IDs.  
+- `doc_vectors` (`dict[int, numpy.ndarray]`): Precomputed Word2Vec vector representations for each document.  
+- `model` (`gensim.models.Word2Vec`): Pre‑trained Word2Vec model used to generate query vectors.  
+
+Returns:
+- `list[int]`: Ranked document IDs.  
+- `dict[int, float]`: Cosine similarity scores between the query vector and each document vector.  
+
+
+
