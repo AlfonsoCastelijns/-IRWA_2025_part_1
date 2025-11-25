@@ -13,7 +13,7 @@ class RAGGenerator:
         1. Identify the single best product that matches the user's request.
         2. Present the recommendation clearly in this format:
         - Best Product: [Product PID] [Product Name]
-        - Why: [Explain in plain language why this product is the best fit, referring to specific attributes like price, features, quality, or fit to user’s needs.]
+        - Why: [Explain in plain language why this product is the best fit, referring to specific attributes like price, features, quality, or fit to user's needs.]
         3. If there is another product that could also work, mention it briefly as an alternative.
         4. If no product is a good fit, return ONLY this exact phrase:
         "There are no good products that fit the request based on the retrieved results."

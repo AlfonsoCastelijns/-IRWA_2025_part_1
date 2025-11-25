@@ -30,9 +30,13 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import numpy as np
 
-nltk.download('stopwords')
-stop_words = set(stopwords.words('english'))
+try:
+    stop_words = set(stopwords.words('english'))
+except LookupError:
+    nltk.download('stopwords')
+    stop_words = set(stopwords.words('english'))
 stemmer = PorterStemmer()
+
 def clean_text(text):
     text = text.lower()
     text = re.sub(r'[^\x00-\x7F]+', '', text) # Delete no ASCII character
@@ -75,13 +79,9 @@ def query(query_terms, inverted_index):
 
 
 
-def bm25_rank_classic_idf(query_terms, inverted_index, tf_scores, K1=1.6, B=0.75):
+def bm25_rank_classic_idf(query_terms, inverted_index, tf_scores, df, K1=1.6, B=0.75):
 
-
-    df = {}
-    for term in set(t for d in tf_scores.values() for t in d.keys()):
-        df[term] = sum(1 for doc_id, counts in tf_scores.items() if term in counts)
-    N=len(tf_scores)
+    N = len(tf_scores)
     def get_idf(term):
         n_q = df.get(term, 0)
         return math.log(N / n_q) if n_q > 0 else 0.0
@@ -98,7 +98,7 @@ def bm25_rank_classic_idf(query_terms, inverted_index, tf_scores, K1=1.6, B=0.75
 
     scores = {}
     # Parameters
-    doc_lengths = {doc_id: sum(tf_scores.values()) for doc_id, tf_scores in tf_scores.items()}
+    doc_lengths = {doc_id: sum(counts.values()) for doc_id, counts in tf_scores.items()}
     avgdl = np.mean(list(doc_lengths.values())) if doc_lengths else 0.0
     for doc_id in candidate_doc_ids:
         dl = doc_lengths.get(doc_id, 0)
@@ -122,16 +122,17 @@ def bm25_rank_classic_idf(query_terms, inverted_index, tf_scores, K1=1.6, B=0.75
 class SearchEngine:
     """Class that implements the search engine logic"""
 
-    def search(self, search_query, search_id, corpus,inverted_index, tf_scores):
+    def search(self, search_query, search_id, corpus,inverted_index, tf_scores,df):
         print("Search query:", search_query)
 
-        query_terms = search_query.split()
+        cleaned_terms = clean_text(search_query).split()
 
 
         ranked_doc_ids, scores = bm25_rank_classic_idf(
-            query_terms,
+            cleaned_terms,
             inverted_index,   # must exist globally
-            tf_scores         # must exist globally
+            tf_scores,         # must exist globally
+            df
         )
         ranked_doc_ids = sorted(
             scores.keys(),
@@ -153,7 +154,13 @@ class SearchEngine:
                     title=doc.title,
                     description=doc.description,
                     url=f"doc_details?pid={doc.pid}&search_id={search_id}&param2=2",
-                    ranking=scores.get(pid, 0.0)
+                    ranking=scores.get(pid, 0.0),
+                    selling_price=doc.selling_price,
+                    discount=doc.discount,
+                    average_rating=doc.average_rating,
+                    brand=doc.brand,
+                    images=doc.images,
+                    original_url=doc.url
                 )
             )
 

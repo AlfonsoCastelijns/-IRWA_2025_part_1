@@ -24,9 +24,10 @@ class Document(BaseModel):
     title_clean: Optional[str] = None
     description_clean: Optional[str] = None
     metadata_text: Optional[str] = None
+    original_url: Optional[str] = None
 
     def to_json(self):
-        return self.model_dump_json()
+        return self.model_dump()
 
     # --- Validators ---
 

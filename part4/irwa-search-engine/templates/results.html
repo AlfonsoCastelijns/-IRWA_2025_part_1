@@ -1,27 +1,61 @@
 {% extends "base.html" %}
 {% block page_title %}{{ page_title }}{% endblock %}
+
 {% block content %}
-    Found <strong>{{ found_counter }}</strong> results...
+
+<!-- Back to search link -->
+<div style="margin-bottom: 20px;">
+    <a href="/" style="font-weight:bold; text-decoration:none;">← Back to Search</a>
+</div>
+ <p>Found <strong>{{ found_counter }}</strong> results...</p> <hr>
+
+
+
+{% if rag_response %}
+    <div class="mb-4 p-3" style="border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">
+        <h5>AI-Generated Summary:</h5>
+        <p>{{ rag_response }}</p>
+    </div>
     <hr>
-    {% if rag_response %}
-        <div class="mb-4 p-3" style="border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">
-            <h5>AI-Generated Summary:</h5>
-            <p>{{ rag_response }}</p>
-        </div>
-    {% endif %}
-    <hr>
-    {% for item in results_list %}
-        <div class="pb-3">
+{% endif %}
+
+{% for item in results_list %}
+    <div class="pb-4 mb-4" style="border-bottom: 1px solid #eee; display: flex; gap: 15px;">
+        
+        {% if item.images and item.images[0] %}
+            <div class="doc-image">
+                <img src="{{ item.images[0] }}" alt="{{ item.title }}" style="max-width:150px; max-height:150px; object-fit:contain; border:1px solid #ddd; padding:5px; border-radius:5px;">
+            </div>
+        {% endif %}
+        
+        <div class="doc-content">
             <div class="doc-title">
-                <a href="{{ item.url }}">{{ item.title }}...
-                </a>
+                <a href="{{ item.url }}" target="_blank"><strong>{{ item.title }}</strong></a>
             </div>
-            <div class="doc-desc">
-                {{ item.doc_date }} — {{ item.description }}
+            
+            <div class="doc-details mt-1">
+                <p>{{ item.description }}</p>
+                <ul>
+                    {% if item.selling_price %}
+                        <li><strong>Price:</strong> ${{ item.selling_price }}</li>
+                    {% endif %}
+                    {% if item.discount %}
+                        <li><strong>Discount:</strong> {{ item.discount }}%</li>
+                    {% endif %}
+                    {% if item.average_rating %}
+                        <li><strong>Rating:</strong> {{ item.average_rating }} / 5</li>
+                    {% endif %}
+                    {% if item.brand %}
+                        <li><strong>Brand:</strong> {{ item.brand }}</li>
+                    {% endif %}
+                    {% if item.original_url %}
+                        <li><strong>URL:</strong> <a href="{{ item.original_url }}" target="_blank">Link</a></li>
+                    {% endif %}
+                </ul>
             </div>
-
         </div>
+    </div>
+{% endfor %}
 
-    {% endfor %}
+
 {% endblock %}
-
