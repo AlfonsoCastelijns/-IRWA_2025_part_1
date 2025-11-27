@@ -74,11 +74,6 @@ def query(query_terms, inverted_index):
 
 
 
-# Function to get idf
-
-
-
-
 def bm25_rank_classic_idf(query_terms, inverted_index, tf_scores, df, K1=1.6, B=0.75):
 
     N = len(tf_scores)
@@ -122,7 +117,7 @@ def bm25_rank_classic_idf(query_terms, inverted_index, tf_scores, df, K1=1.6, B=
 class SearchEngine:
     """Class that implements the search engine logic"""
 
-    def search(self, search_query, search_id, corpus,inverted_index, tf_scores,df):
+    def search(self, search_query, search_id, corpus,inverted_index, tf_scores,df,min_price=None,max_price=None):
         print("Search query:", search_query)
 
         cleaned_terms = clean_text(search_query).split()
@@ -163,6 +158,20 @@ class SearchEngine:
                     original_url=doc.url
                 )
             )
+        filtered = []
+        for item in results:
+            price = item.selling_price
 
-        # Return *all* ranked results or limit to top 20
-        return results[:20]
+            if price is None:
+                continue
+
+            if min_price is not None and price < min_price:
+                continue
+                
+            if max_price is not None and price > max_price:
+                continue
+
+            filtered.append(item)
+
+        return filtered[:20]
+

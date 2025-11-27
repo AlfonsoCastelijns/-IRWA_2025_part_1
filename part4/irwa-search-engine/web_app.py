@@ -240,11 +240,20 @@ def search_form_post():
     
     search_query = request.form['search-query']
 
+
+    min_price = request.form.get("min_price", "").strip()
+    max_price = request.form.get("max_price", "").strip()
+
+    # convert to float or None
+    min_price = float(min_price) if min_price else None
+    max_price = float(max_price) if max_price else None
+
+
     session['last_search_query'] = search_query
 
     search_id = analytics_data.save_query_terms(search_query)
 
-    results = search_engine.search(search_query, search_id, corpus, inverted_index, tf_scores,df)
+    results = search_engine.search(search_query, search_id, corpus, inverted_index, tf_scores,df,min_price=min_price,max_price=max_price)
 
     # generate RAG response based on user query and retrieved results
     rag_response = rag_generator.generate_response(search_query, results)

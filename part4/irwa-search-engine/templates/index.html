@@ -1,18 +1,45 @@
 {% extends "base.html" %}
 {% block page_title %}{{ page_title }}{% endblock %}
 {% block content %}
-    <div class="centered">
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <form class="d-flex" method="POST" onSubmit='return validate();' action="/search">
-            <input class="form-control me-2" name="search-query" type="search" placeholder="Search" aria-label="Search"
-                   autofocus="autofocus">
-            <button class="btn btn-primary" type="submit" onclick='this.form.submit();'>Search</button>
+<div class="centered">
+    <div class="card shadow p-4" style="max-width:650px; margin:auto; border-radius:12px;">
+        <h3 class="text-center mb-4">Search Products</h3>
+
+        <form method="POST" onSubmit='return validate();' action="/search">
+
+            <div class="form-group mb-3">
+                <input class="form-control"
+                       name="search-query"
+                       type="search"
+                       placeholder="Search for products..."
+                       aria-label="Search"
+                       autofocus="autofocus">
+            </div>
+
+            <div class="row mb-4">
+                <div class="col">
+                    <label>Min Price (€)</label>
+                    <input class="form-control"
+                           name="min_price"
+                           type="number"
+                           step="0.01"
+                           placeholder="0">
+                </div>
+                <div class="col">
+                    <label>Max Price (€)</label>
+                    <input class="form-control"
+                           name="max_price"
+                           type="number"
+                           step="0.01"
+                           placeholder="5000">
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-block w-100" type="submit">Search</button>
             <input name="upf-irwa-hidden" type="hidden" value="123">
         </form>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
     </div>
+
+    <p>&nbsp;</p>
+</div>
 {% endblock %}

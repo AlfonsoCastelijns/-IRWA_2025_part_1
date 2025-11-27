@@ -60,3 +60,14 @@ input[type=submit]:hover {
     font-size: 0.95em;
     adding-left: 5px;
 }
+
+body {
+    background-color: #f8f9fa; /* soft gray background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
