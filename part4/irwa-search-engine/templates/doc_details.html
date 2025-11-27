@@ -1,97 +1,110 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
+{% block page_title %}Document Details{% endblock %}
 
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Document Detail - IRWA Search Engine</title>
-    <style>
-        .doc-image img {
-            max-width: 250px;
-            max-height: 250px;
-            object-fit: contain;
-            border: 1px solid #ddd;
-            padding: 5px;
-            border-radius: 5px;
-        }
-        .doc-container {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .doc-details ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .doc-details li {
-            margin-bottom: 5px;
-        }
-    </style>
-</head>
-<body>
-<div><a href="/" >Home</a></div>
-<div><a href="/stats" >Stats</a></div>
-<div><a href="/dashboard" >Dashboard</a></div>
+{% block content %}
 
+<!-- Navigation Links -->
+<div class="mb-4">
+    <a href="/" class="text-primary font-weight-bold" style="text-decoration:none;">← Back to Search</a>
+    &nbsp; | &nbsp;
+    <a href="/stats" class="text-secondary">Stats</a>
+    &nbsp; | &nbsp;
+    <a href="/dashboard" class="text-secondary">Dashboard</a>
+</div>
 
-<h1>Document Detail Page</h1>
+<!-- Page heading -->
+<h3 class="text-secondary mb-4">Document Details</h3>
 
-<div class="doc-container">
-    {% if doc.images %}
+<div class="p-4"
+     style="
+         background:white;
+         border-radius:12px;
+         box-shadow:0 3px 10px rgba(0,0,0,0.08);
+     ">
+
+    <div class="doc-container d-flex" style="gap: 30px;">
+
+        <!-- Images -->
+        {% if doc.images %}
         <div class="doc-image">
             {% for img in doc.images %}
-                <img src="{{ img }}" alt="{{ doc.title }}">
+                <img src="{{ img }}"
+                     alt="{{ doc.title }}"
+                     class="mb-3"
+                     style="
+                        max-width:260px;
+                        max-height:260px;
+                        object-fit:contain;
+                        border-radius:12px;
+                        border:1px solid #eee;
+                        background:#fafafa;
+                        padding:8px;
+                     ">
             {% endfor %}
         </div>
-    {% endif %}
+        {% endif %}
 
-    <div class="doc-details">
-        <h2>{{ doc.title }}</h2>
-        <p>{{ doc.description }}</p>
-        <ul>
-            {% if doc.selling_price %}
-                <li><strong>Price:</strong> ${{ doc.selling_price }}</li>
-            {% endif %}
-            {% if doc.discount %}
-                <li><strong>Discount:</strong> {{ doc.discount }}%</li>
-            {% endif %}
-            {% if doc.actual_price %}
-                <li><strong>Original Price:</strong> ${{ doc.actual_price }}</li>
-            {% endif %}
-            {% if doc.average_rating %}
-                <li><strong>Rating:</strong> {{ doc.average_rating }} / 5</li>
-            {% endif %}
-            {% if doc.brand %}
-                <li><strong>Brand:</strong> {{ doc.brand }}</li>
-            {% endif %}
-            {% if doc.category %}
-                <li><strong>Category:</strong> {{ doc.category }}</li>
-            {% endif %}
-            {% if doc.sub_category %}
-                <li><strong>Sub-Category:</strong> {{ doc.sub_category }}</li>
-            {% endif %}
-            {% if doc.seller %}
-                <li><strong>Seller:</strong> {{ doc.seller }}</li>
-            {% endif %}
-            {% if doc.product_details %}
-                <li><strong>Product Details:</strong>
-                    <ul>
-                    {% if doc.product_details is mapping %}
-                        {% for k, v in doc.product_details.items() %}
-                            <li>{{ k }}: {{ v }}</li>
-                        {% endfor %}
-                    {% else %}
-                        {{ doc.product_details }}
-                    {% endif %}
+        <!-- Details -->
+        <div class="doc-details flex-grow-1">
+
+            <h4 class="mb-2">{{ doc.title }}</h4>
+
+            <p class="text-muted" style="font-size:0.95rem;">
+                {{ doc.description }}
+            </p>
+
+            <ul class="list-unstyled" style="font-size:0.93rem;">
+                {% if doc.selling_price %}
+                    <li><strong>Price:</strong> ${{ doc.selling_price }}</li>
+                {% endif %}
+                {% if doc.discount %}
+                    <li><strong>Discount:</strong> {{ doc.discount }}%</li>
+                {% endif %}
+                {% if doc.actual_price %}
+                    <li><strong>Original Price:</strong> ${{ doc.actual_price }}</li>
+                {% endif %}
+                {% if doc.average_rating %}
+                    <li><strong>Rating:</strong> {{ doc.average_rating }} / 5</li>
+                {% endif %}
+                {% if doc.brand %}
+                    <li><strong>Brand:</strong> {{ doc.brand }}</li>
+                {% endif %}
+                {% if doc.category %}
+                    <li><strong>Category:</strong> {{ doc.category }}</li>
+                {% endif %}
+                {% if doc.sub_category %}
+                    <li><strong>Sub-Category:</strong> {{ doc.sub_category }}</li>
+                {% endif %}
+                {% if doc.seller %}
+                    <li><strong>Seller:</strong> {{ doc.seller }}</li>
+                {% endif %}
+
+                {% if doc.product_details %}
+                <li>
+                    <strong>Product Details:</strong>
+                    <ul class="mt-1">
+                        {% if doc.product_details is mapping %}
+                            {% for k, v in doc.product_details.items() %}
+                                <li>{{ k }}: {{ v }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>{{ doc.product_details }}</li>
+                        {% endif %}
                     </ul>
                 </li>
-            {% endif %}
-            {% if doc.url %}
-                <li><strong>Original URL:</strong> <a href="{{ doc.url }}" target="_blank">{{ doc.url }}</a></li>
-            {% endif %}
-        </ul>
-    </div>
-</div>
-```
+                {% endif %}
 
-</body>
-</html>
+                {% if doc.url %}
+                <li class="mt-2">
+                    <strong>Original URL:</strong>
+                    <a href="{{ doc.url }}" target="_blank">Link</a>
+                </li>
+                {% endif %}
+            </ul>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
