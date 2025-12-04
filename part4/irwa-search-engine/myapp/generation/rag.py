@@ -10,7 +10,7 @@ class RAGGenerator:
         You are an expert product advisor helping users choose the best option from retrieved e-commerce products.
 
         ## Instructions:
-        1. Identify the single best product that matches the user's request.
+        1. Identify the single best product that matches the user's request. **Crucially, use product attributes like Price, Rating, and Discount to justify your recommendation.**
         2. Present the recommendation clearly in this format:
         - Best Product: [Product PID] [Product Name]
         - Why: [Explain in plain language why this product is the best fit, referring to specific attributes like price, features, quality, or fit to user's needs.]
@@ -18,7 +18,7 @@ class RAGGenerator:
         4. If no product is a good fit, return ONLY this exact phrase:
         "There are no good products that fit the request based on the retrieved results."
 
-        ## Retrieved Products:
+        ## Retrieved Products (PID, Title, Price, Rating, Discount):
         {retrieved_results}
 
         ## User Request:
@@ -30,23 +30,36 @@ class RAGGenerator:
         - Alternative (optional): ...
     """
 
-    def generate_response(self, user_query: str, retrieved_results: list, top_N: int = 20) -> dict:
+    def generate_response(self, user_query: str, retrieved_results: list, top_N: int = 20) -> str:
         """
         Generate a response using the retrieved search results. 
         Returns:
-            dict: Contains the generated suggestion and the quality evaluation.
+            str: The generated suggestion or a default error message.
         """
         DEFAULT_ANSWER = "RAG is not available. Check your credentials (.env file) or account limits."
+        
+        # IMPROVEMENT 1: Check for empty results before calling the LLM
+        if not retrieved_results:
+             return "There are no good products that fit the request based on the retrieved results."
+        
         try:
             client = Groq(
                 api_key=os.environ.get("GROQ_API_KEY"),
             )
             model_name = os.environ.get("GROQ_MODEL", "llama-3.1-8b-instant")
 
-            # Format the retrieved results for the prompt
+            # IMPROVEMENT 2: Format the results for the prompt to include  price, rating, and discount
             formatted_results = "\n".join(
-                [f"- PID: {res.pid}, Title: {res.title}" for res in retrieved_results[:top_N]]
+                [
+                    f"- PID: {res.pid}, Title: {res.title}, Price: {res.selling_price if res.selling_price is not None else 'N/A'}, Rating: {res.average_rating if res.average_rating is not None else 'N/A'}, Discount: {res.discount if res.discount is not None else 'N/A'}%"
+                    for res in retrieved_results[:top_N]
+                ]
             )
+            
+            # Do another security check
+            if not formatted_results and not retrieved_results: 
+                 formatted_results = "No products retrieved or formatted for analysis."
+
 
             prompt = self.PROMPT_TEMPLATE.format(
                 retrieved_results=formatted_results,
