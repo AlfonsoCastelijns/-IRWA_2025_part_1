@@ -418,11 +418,12 @@ import atexit
 
 def save_analytics_data():
     """Saves the current state of analytics_data to a JSON file."""
+    full_data = analytics_data.to_json_serializable()
     try:
         
         os.makedirs(os.path.dirname(ANALYTICS_FILE_PATH), exist_ok=True)
         with open(ANALYTICS_FILE_PATH, "w", encoding="utf-8") as f:
-            json.dump(analytics_data, f, indent=2)
+            json.dump(full_data, f, indent=2)
         print(f"Analytics data successfully saved to {ANALYTICS_FILE_PATH}")
     except Exception as e:
         print(f"Error saving analytics data: {e}")
