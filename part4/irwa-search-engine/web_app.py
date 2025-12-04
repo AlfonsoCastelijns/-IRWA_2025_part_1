@@ -7,7 +7,9 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import numpy as np
 from collections import Counter
+from datetime import datetime
 
+ANALYTICS_FILE_PATH = "data/analytics.json"
 
 try:
     stop_words = set(stopwords.words('english'))
@@ -26,6 +28,7 @@ from myapp.search.load_corpus import load_corpus
 from myapp.search.objects import Document, StatsDocument
 from myapp.search.search_engine import SearchEngine
 from myapp.generation.rag import RAGGenerator
+from datetime import datetime
 from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env
 
@@ -40,6 +43,7 @@ JSONEncoder.default = _default
 
 # instantiate the Flask application
 app = Flask(__name__)
+
 
 # random 'secret_key' is used for persisting data in secure cookie
 app.secret_key = os.getenv("SECRET_KEY")
@@ -76,6 +80,13 @@ if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
             tf_scores = json.load(f)
         with open("data/df.json", "r", encoding="utf-8") as f:
             df = json.load(f)
+    if os.path.exists(ANALYTICS_FILE_PATH):
+        try:
+            with open(ANALYTICS_FILE_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                analytics_data.load_from_dict(data) # Llama al nuevo método
+        except Exception as e:
+            print(f"Error loading analytics data: {e}. Starting with empty data.")
 
     else:
         print("Loading and preprocessing original corpus...")
@@ -230,6 +241,21 @@ def index():
     user_ip = request.remote_addr
     agent = httpagentparser.detect(user_agent)
 
+    if 'session_id' not in session:
+        # new session in analytics data and store the ID in the Flask session
+        new_session_id = analytics_data.save_session_data(user_ip, user_agent)
+        session['session_id'] = new_session_id
+        print(f"New session created: ID={new_session_id}")
+
+    session_id = session.get('session_id')
+    if session_id:
+        # Logs the visit to the home page (endpoint='/')
+        analytics_data.save_request(
+            session_id=session_id, 
+            endpoint=request.path, 
+            timestamp=datetime.now()
+        )
+
     print("Remote IP: {} - JSON user browser {}".format(user_ip, agent))
     print(session)
     return render_template('index.html', page_title="Welcome")
@@ -253,6 +279,8 @@ def search_form_post():
 
     search_id = analytics_data.save_query_terms(search_query)
 
+    session['current_search_id'] = search_id
+
     results = search_engine.search(search_query, search_id, corpus, inverted_index, tf_scores,df,min_price=min_price,max_price=max_price)
 
     # generate RAG response based on user query and retrieved results
@@ -261,6 +289,11 @@ def search_form_post():
 
     found_count = len(results)
     session['last_found_count'] = found_count
+
+    session_id = session.get('session_id')
+    if session_id:
+        
+        analytics_data.save_request(session_id, request.path, datetime.now())
 
     print(session)
 
@@ -282,10 +315,29 @@ def doc_details():
     res = session["some_var"]
     print("recovered var from session:", res)
 
+    session_id = session.get('session_id')
     # get the query string parameters from request
     clicked_doc_id = request.args["pid"]
     print("click in id={}".format(clicked_doc_id))
+    rank = request.args.get("rank")
+    search_id = session.get('current_search_id')
+    rank_int = int(rank)
 
+    analytics_data.save_detailed_click(
+        session_id=session_id,
+        search_id=search_id,
+        doc_id=clicked_doc_id,
+        rank=rank_int,
+        timestamp=datetime.now(),
+    )
+
+    print(f"Detailed click registered: PID={clicked_doc_id}, SearchID={search_id}, Rank={rank_int}, SessionID={session_id}")
+
+    session_id = session.get('session_id')
+    if session_id:
+        
+        analytics_data.save_request(session_id, request.path, datetime.now())
+    '''
     # store data in statistics table 1
     if clicked_doc_id in analytics_data.fact_clicks.keys():
         analytics_data.fact_clicks[clicked_doc_id] += 1
@@ -294,6 +346,7 @@ def doc_details():
 
     print("fact_clicks count for id={} is {}".format(clicked_doc_id, analytics_data.fact_clicks[clicked_doc_id]))
     print(analytics_data.fact_clicks)
+    '''
     return render_template('doc_details.html',doc=corpus[clicked_doc_id])
 
 
@@ -316,19 +369,36 @@ def stats():
     return render_template('stats.html', clicks_data=docs)
 
 
+# In webapp.py
+
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    visited_docs = []
+    ctr_plot_html = analytics_data.plot_ctr_at_k()
+    
+    top_queries_html = analytics_data.plot_top_queries(top_n=5)
+    traffic_summary = analytics_data.calculate_traffic_summary()
+    
+    
+    visited_docs = [] 
     for doc_id in analytics_data.fact_clicks.keys():
         d: Document = corpus[doc_id]
         doc = ClickedDoc(doc_id, d.description, analytics_data.fact_clicks[doc_id])
         visited_docs.append(doc)
 
-    # simulate sort by ranking
     visited_docs.sort(key=lambda doc: doc.counter, reverse=True)
+    session_id = session.get('session_id')
+    if session_id:
+        
+        analytics_data.save_request(session_id, request.path, datetime.now())
 
-    for doc in visited_docs: print(doc)
-    return render_template('dashboard.html', visited_docs=visited_docs)
+    return render_template(
+        'dashboard.html', 
+        ctr_plot_html=ctr_plot_html,
+        top_queries_html=top_queries_html, 
+        traffic_summary=traffic_summary,   
+        #click_rate_html=click_rate_html, 
+        visited_docs=visited_docs
+    )
 
 
 # New route added for generating an examples of basic Altair plot (used for dashboard)
@@ -339,3 +409,24 @@ def plot_number_of_views():
 
 if __name__ == "__main__":
     app.run(port=8088, host="0.0.0.0", threaded=False, debug=os.getenv("DEBUG"))
+
+
+
+import atexit 
+
+
+
+def save_analytics_data():
+    """Saves the current state of analytics_data to a JSON file."""
+    try:
+        
+        os.makedirs(os.path.dirname(ANALYTICS_FILE_PATH), exist_ok=True)
+        with open(ANALYTICS_FILE_PATH, "w", encoding="utf-8") as f:
+            json.dump(analytics_data, f, indent=2)
+        print(f"Analytics data successfully saved to {ANALYTICS_FILE_PATH}")
+    except Exception as e:
+        print(f"Error saving analytics data: {e}")
+        
+
+
+atexit.register(save_analytics_data)

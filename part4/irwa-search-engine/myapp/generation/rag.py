@@ -10,7 +10,7 @@ class RAGGenerator:
         You are an expert product advisor helping users choose the best option from retrieved e-commerce products.
 
         ## Instructions:
-        1. Identify the single best product that matches the user's request. **Crucially, use product attributes like Price, Rating, and Discount to justify your recommendation.**
+        1. Explain why this product matches the user's request. **Crucially, use product attributes like Price, Rating, and Discount to justify your recommendation.**
         2. Present the recommendation clearly in this format:
         - Best Product: [Product PID] [Product Name]
         - Why: [Explain in plain language why this product is the best fit, referring to specific attributes like price, features, quality, or fit to user's needs.]
@@ -18,9 +18,11 @@ class RAGGenerator:
         4. If no product is a good fit, return ONLY this exact phrase:
         "There are no good products that fit the request based on the retrieved results."
 
-        ## Retrieved Products (PID, Title, Price, Rating, Discount):
-        {retrieved_results}
+        ## Best Retrieved Product (PID, Title, Price, Rating, Discount):
+        {best_product}
 
+        #Alternative:
+        {alt_product}
         ## User Request:
         {user_query}
 
@@ -61,10 +63,14 @@ class RAGGenerator:
                  formatted_results = "No products retrieved or formatted for analysis."
 
 
+            best = formatted_results.split("\n")[0] if formatted_results else "N/A"
+            alt = formatted_results.split("\n")[1] if len(formatted_results.split("\n")) > 1 else "N/A"
+
             prompt = self.PROMPT_TEMPLATE.format(
-                retrieved_results=formatted_results,
+                best_product=best,
+                alt_product=alt,
                 user_query=user_query
-            )
+)
 
             chat_completion = client.chat.completions.create(
                 messages=[

@@ -58,10 +58,10 @@
         <div class="flex-grow-1">
 
             <h5 class="mb-1">
-                <a href="{{ item.url }}" target="_blank" 
+                <a href="/doc_details?pid={{ item.pid }}&rank={{ loop.index }}"
                    class="text-dark" 
                    style="text-decoration:none;">
-                    {{ item.title }}
+                    <strong>{{ loop.index }}.</strong> {{ item.title }}
                 </a>
             </h5>
 

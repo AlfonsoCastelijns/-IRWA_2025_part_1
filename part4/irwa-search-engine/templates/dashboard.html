@@ -2,30 +2,76 @@
 {% block page_title %}{{ page_title }}{% endblock %}
 
 {% block header %}
-    <!-- Next tag loads Charts.js https://www.chartjs.org/docs/latest/ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.2/chart.min.js"
-            integrity="sha512-tMabqarPtykgDtdtSqCL3uLVM0gS1ZkUAVhRFu1vSEFgvB73niFQWJuvviDyBGBH22Lcau4rHB5p2K2T0Xvr6Q=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-{% endblock %}
+             integrity="sha512-tMabqarPtykgDtdtSqCL3uLVM0gS1ZkUAVhRFu1vSEFgvB73niFQWJuvviDyBGBH22Lcau4rHB5p2K2T0Xvr6Q=="
+             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+    {% endblock %}
 
 {% block content %}
 
-    <!--
-    Examples of what to show in Dashboard:
+    <h2>📊 Analytics Dashboard</h2>
 
-    - Ranking of visited documents (from results page)
-    - Visitor's preferred browsers
-    - Visitor's city (from IP)
-    - preferred queries ranking
-    - preferred terms
-    - etc.
+    <div style="display: flex; gap: 30px; margin-bottom: 40px;">
+        <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1;">
+            <h3>Total Sessions</h3>
+            <p style="font-size: 2em; color: #007bff;">{{ traffic_summary.total_sessions }}</p>
+        </div>
+        <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1;">
+            <h3>Total Requests (Page Views)</h3>
+            <p style="font-size: 2em; color: #28a745;">{{ traffic_summary.total_requests }}</p>
+        </div>
+        <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; flex: 1;">
+            <h3>Avg Requests per Session</h3>
+            <p style="font-size: 2em; color: #ffc107;">{{ "{:.2f}".format(traffic_summary.avg_requests_per_session) }}</p>
+        </div>
+    </div>
 
-    -->
+    <hr>
 
-    <h3>Dashboard</h3>
-    <iframe src="/plot_number_of_views" width="600" height="400" style="border: none;"></iframe>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h3>🔥 Top Search Queries</h3>
+            <p>This chart shows the top 5 most frequent search terms, indicating user interest.</p>
+            {{ top_queries_html | safe }}
+        </div>
+        <div class="col-md-6">
+            <h3>📈 Click-Through Rate by Rank (CTR@K)</h3>
+            <p>Measures the effectiveness of the ranking algorithm by showing the click percentage for each result position.</p>
+            {{ ctr_plot_html | safe }}
+        </div>
+    </div>
+
+    <hr>
+
+    <h3>📚 Ranking of Visited Documents</h3>
+    <p>The documents that received the highest number of clicks.</p>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>PID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Total Clicks</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in visited_docs %}
+            <tr>
+                <td>{{ doc.doc_id }}</td>
+                <td><a href="{{ url_for('doc_details', pid=doc.doc_id) }}">{{ doc.description }}</a></td>
+                <td>{{ doc.description[:80] }}...</td>
+                <td>{{ doc.counter }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <iframe src="/plot_number_of_views" width="600" height="400" style="border: none; display: none;"></iframe>
 
 
 {% endblock %}
-
-
