@@ -293,3 +293,186 @@ This is a guide on how to execute our code:
 - Open any of the local links provided, and you will be presented with the search page. From there, you can input your query, set minimum and maximum prices, and search. In the results page, you will see the LLM summary of the best results, and can view and click on the results shown below it for further information.
 - You can also access the `Stats` or `Dashboard` pages from the links at the top of the results page.
 
+For the interface and RAG sections of this deliverable, we did not create any extra functions, rather we modified the given ones or reused ones from previous parts. For the Web Analytics, we have the following:
+
+
+**Function:** `save_query_terms(terms)`
+Stores a query string in the `dim_query` dimension table and assigns it a unique query ID.
+
+**Parameters:**
+- `terms` (`str`): The original user query string.
+
+**Returns:**
+- `int`: A unique sequential query ID stored in `dim_query`.
+
+---
+
+**Function:** `save_detailed_click(session_id, search_id, doc_id, rank, timestamp, user_ip)`
+Stores a detailed click event in `fact_clicks_detailed`, including rank, timestamps, and click counters.  
+Also finalizes dwell-time for the previous unresolved click in the session.
+
+**Parameters:**
+- `session_id` (`int`): ID of the session in which the click occurred.  
+- `search_id` (`int`): ID of the query that produced the ranked list.  
+- `doc_id` (`str`): Identifier of the clicked document.  
+- `rank` (`int`): Rank position of the clicked document.  
+- `timestamp` (`datetime`): Timestamp of the click.  
+- `user_ip` (`str`): IP address of the user.
+
+**Returns:**
+- `None`
+
+---
+
+**Function:** `save_session_data(user_ip, user_agent)`
+Creates and stores a new session record in `dim_session`, assigning it a unique session ID.
+
+**Parameters:**
+- `user_ip` (`str`): IP address initiating the session.  
+- `user_agent` (`str`): Browser or client identifier.
+
+**Returns:**
+- `int`: Unique session ID.
+
+---
+
+**Function:** `_check_and_update_dwell_time(session_id, current_timestamp)`
+Internal helper that computes dwell time for the last unresolved click by comparing timestamps.
+
+**Parameters:**
+- `session_id` (`int`): Session containing the unresolved click.  
+- `current_timestamp` (`datetime`): Timestamp of the new event.
+
+**Returns:**
+- `None`
+
+---
+
+**Function:** `save_request(session_id, endpoint, timestamp)`
+Records a generic HTTP request in `fact_requests_detailed`, and updates dwell time for the previous click.
+
+**Parameters:**
+- `session_id` (`int`): Session that issued the request.  
+- `endpoint` (`str`): URL/endpoint accessed.  
+- `timestamp` (`datetime`): Timestamp of the request.
+
+**Returns:**
+- `None`
+
+---
+
+**Function:** *`plot_number_of_views()`
+Builds an Altair bar chart showing the number of clicks per document.
+
+**Parameters:**  
+- *(none)*
+
+**Returns:**  
+- `str`: HTML representation of the bar chart.
+
+---
+
+**Function:** `calculate_ctr_at_k()`
+Computes CTR@K values by aggregating clicks by rank and dividing by total queries.
+
+**Parameters:**  
+- *(none)*
+
+**Returns:**  
+- `pandas.DataFrame`: With columns:
+  - `Rank`
+  - `CTR`
+
+---
+
+**Function:** `plot_ctr_at_k()`
+Generates an Altair bar chart visualizing CTR@K.
+
+**Parameters:**  
+- *(none)*
+
+**Returns:**  
+- `str`: HTML representation of the CTR chart.
+
+---
+
+**Function:** `calculate_top_queries(top_n)`
+Counts query term frequencies and returns the most common terms.
+
+**Parameters:**
+- `top_n` (`int`): Number of top query terms to include.
+
+**Returns:**
+- `list[dict]`: Each entry contains:
+  - `"Query"`
+  - `"Count"`
+
+---
+
+**Function:** `plot_top_queries(top_n)`
+Builds an Altair bar chart for the most frequent search terms.
+
+**Parameters:**
+- `top_n` (`int`): Number of top query terms to plot.
+
+**Returns:**
+- `str`: HTML representation of the chart.
+
+---
+
+**Function:** `calculate_traffic_summary()`
+Computes session and request-level summary analytics.
+
+**Parameters:**  
+- *(none)*
+
+**Returns:**  
+- `dict`: Contains:
+  - `total_sessions`
+  - `total_requests`
+  - `avg_requests_per_session`
+
+---
+
+**Function:** `to_json_serializable()`
+Serializes all dimension and fact analytics structures into JSON-safe Python dictionaries/lists.
+
+**Parameters:**  
+- *(none)*
+
+**Returns:**  
+- `dict`: JSON-exportable analytics snapshot.
+
+---
+
+**Function:** `load_from_dict(data)`
+Loads analytics state from a dictionary previously generated using `to_json_serializable()`.
+
+**Parameters:**  
+- `data` (`dict`): Dictionary containing serialized analytics state.
+
+**Returns:**  
+- `None`
+
+---
+
+**Function:** `ClickedDoc.to_json()`
+Converts a `ClickedDoc` object into a JSON-ready dictionary.
+
+**Parameters:**  
+- *(none)*
+
+**Returns:**  
+- `dict`: Dictionary representation.
+
+---
+
+**Function:** `ClickedDoc.__str__()`
+Returns a JSON-encoded string representation of the clicked document metadata.
+
+**Parameters:**  
+- *(none)*
+
+**Returns:**  
+- `str`: JSON string describing the click entry.
+
