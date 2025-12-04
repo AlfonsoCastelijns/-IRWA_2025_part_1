@@ -289,7 +289,7 @@ This is a guide on how to execute our code:
 
 - Clone the github and proceed to the `\part4\irwa_search_engine` folder. Insert the `fashion_dataset.json` file into the `\data` folder.
 - Create a virtual environment if desired, then execute the 'web_app.py' file from the terminal.
-- The first execution of the code will compute all the necessary files for a fast searching process, so it could take around 30 seconds to complete. This will be saved into the `/data' folder and will be loaded in any other execution.
+- The first execution of the code will compute all the necessary files for a fast searching process, so it could take around 30 seconds to complete. This will be saved into the `/data` folder and will be loaded in any other execution.
 - Open any of the local links provided, and you will be presented with the search page. From there, you can input your query, set minimum and maximum prices, and search. In the results page, you will see the LLM summary of the best results, and can view and click on the results shown below it for further information.
 - You can also access the `Stats` or `Dashboard` pages from the links at the top of the results page.
 
